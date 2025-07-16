@@ -5,8 +5,6 @@ from plotly.subplots import make_subplots
 import streamlit as st
 from io import StringIO
 
-# Suppress warnings
-warnings.filterwarnings('ignore')
 
 # Page configuration
 st.set_page_config(layout="wide", page_title="Wellbore Stress Analysis")
