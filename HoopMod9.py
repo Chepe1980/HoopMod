@@ -6,7 +6,7 @@ import streamlit as st
 from io import StringIO
 
 # add logo
-logo = Image.open('stress1.png')
+logo = Image.open('stress.png')
 st.sidebar.image(logo, width=200)
 
 
