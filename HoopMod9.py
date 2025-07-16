@@ -275,12 +275,12 @@ def update_plots(Sv, Shmin, Shmax, PP, wellbore_pressure, azimuth, dip, deviatio
     
     # Add Shmin label
     fig.add_annotation(
-        x=arrow_x * 1,
-        y=arrow_y * 1,
+        x=arrow_x * 1.2,
+        y=arrow_y * 1.2,
         text="Shmin",
         showarrow=False,
         font=dict(color='red', size=14, family="Arial Black"),
-        bgcolor='rgba(255,255,255,0.7)',
+        bgcolor='rgba(0,0,0,0.7)',
         bordercolor='red',
         borderwidth=1,
         borderpad=4,
