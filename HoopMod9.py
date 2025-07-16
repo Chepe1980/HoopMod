@@ -247,47 +247,57 @@ def update_plots(Sv, Shmin, Shmax, PP, wellbore_pressure, azimuth, dip, deviatio
         ),
         row=2, col=1
     )
-    
-    # Add arrow showing Shmin direction - FIXED IMPLEMENTATION
+
+    # Add arrow showing Shmin direction (fixed implementation)
     arrow_length = 2.5
     arrow_angle = np.radians(azimuth + 90)  # Shmin is perpendicular to Shmax
     arrow_x = arrow_length * np.cos(arrow_angle)
     arrow_y = arrow_length * np.sin(arrow_angle)
     
-    # Add arrow as a separate trace for better control
-    fig.add_trace(
-        go.Scatter(
-            x=[0, arrow_x],
-            y=[0, arrow_y],
-            mode='lines+markers',
-            line=dict(color='red', width=3),
-            marker=dict(
-                symbol='arrow',
-                size=15,
-                angleref='previous',
-                color='red'
-            ),
-            showlegend=False,
-            hoverinfo='skip'
-        ),
+    fig.add_annotation(
+        x=arrow_x,
+        y=arrow_y,
+        ax=0,
+        ay=0,
+        xref="x4",
+        yref="y4",
+        axref="x4",
+        ayref="y4",
+        showarrow=True,
+        arrowhead=2,
+        arrowsize=1.5,
+        arrowwidth=3,
+        arrowcolor='white',
         row=2, col=1
     )
     
-    # Add Shmin label
     fig.add_annotation(
         x=arrow_x * 1.2,
         y=arrow_y * 1.2,
         text="Shmin",
         showarrow=False,
-        font=dict(color='red', size=14, family="Arial Black"),
+        font=dict(color='white', size=14, family="Arial Black"),
         bgcolor='rgba(0,0,0,0.7)',
-        bordercolor='red',
+        bordercolor='white',
         borderwidth=1,
         borderpad=4,
-        xref="x4",
-        yref="y4"
+        row=2, col=1
     )
     
+
+
+
+
+  
+    
+
+
+
+
+
+
+
+
     # 5. 3D Surface Plot
     r_3d = np.linspace(1, 3, 50)
     theta_3d = np.radians(np.linspace(0, 360, 50))
