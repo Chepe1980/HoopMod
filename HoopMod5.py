@@ -142,7 +142,7 @@ def update_plots(Sv, Shmin, Shmax, PP, wellbore_pressure, azimuth, dip, deviatio
               head_width=0.2, head_length=0.3, fc='white', ec='black', linewidth=2)
     ax4.text(arrow_length * np.cos(np.radians(azimuth + 90)) * 1.1,
              arrow_length * np.sin(np.radians(azimuth + 90)) * 1.1,
-             'Shmin', color='white', fontsize=12, weight='bold',
+             'Shmax', color='white', fontsize=12, weight='bold',
              bbox=dict(facecolor='black', alpha=0.7, edgecolor='none'))
     
     # 5. 3D Surface Plot
