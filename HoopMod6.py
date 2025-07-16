@@ -4,17 +4,12 @@ import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 import streamlit as st
+import mplcursors
 from io import StringIO
-from matplotlib.backend_bases import NavigationToolbar2
 
 # Available colormaps
 colormaps = ['viridis', 'plasma', 'inferno', 'magma', 'cividis', 
              'coolwarm', 'RdYlBu', 'seismic', 'rainbow', 'jet']
-
-class CustomToolbar(NavigationToolbar2):
-    # Custom toolbar to show only the buttons we want
-    toolitems = [t for t in NavigationToolbar2.toolitems if
-                 t[0] in ('Home', 'Pan', 'Zoom', 'Save')]
 
 def kirsch_stresses(Sv, Shmin, Shmax, PP, wellbore_pressure, theta_deg, azimuth_deg, dip_deg, deviation_deg, r=1.0):
     theta = np.radians(theta_deg)
@@ -65,14 +60,22 @@ def plot_well_logs(well_log, selected_depth):
     colors = ['blue', 'green', 'red', 'purple']
     
     for i, (log, title, color) in enumerate(zip(logs, titles, colors)):
-        ax[i].plot(well_log[log], well_log['Depth'], color=color, linewidth=1.5)
+        line, = ax[i].plot(well_log[log], well_log['Depth'], color=color, linewidth=1.5)
         ax[i].axhline(y=selected_depth, color='orange', linestyle='--', linewidth=2)
-        ax[i].plot(selected_values[log], selected_depth, 'o', color='red', markersize=8)
+        point = ax[i].plot(selected_values[log], selected_depth, 'o', color='red', markersize=8)
         ax[i].set_title(title, fontsize=12)
         ax[i].set_xlabel('Stress (MPa)', fontsize=10)
         ax[i].set_ylabel('Depth (m)', fontsize=10)
         ax[i].grid(True)
         ax[i].invert_yaxis()
+        
+        # Add cursor interactivity
+        cursor = mplcursors.cursor(line)
+        @cursor.connect("add")
+        def on_add(sel):
+            x, y = sel.target
+            sel.annotation.set_text(f"Depth: {y:.1f}m\nValue: {x:.1f}MPa")
+            sel.annotation.get_bbox_patch().set(fc="white", alpha=0.8)
     
     return fig
 
@@ -88,32 +91,57 @@ def update_plots(Sv, Shmin, Shmax, PP, wellbore_pressure, azimuth, dip, deviatio
     
     # 1. Polar Plot
     ax1 = fig.add_subplot(231, polar=True)
-    ax1.plot(np.radians(theta_vals), hoop, 'r-', label='Hoop Stress', linewidth=2)
-    ax1.plot(np.radians(theta_vals), radial, 'b-', label='Radial Stress', linewidth=2)
-    ax1.plot(np.radians(theta_vals), shear, 'g-', label='Shear Stress', linewidth=2)
+    line1, = ax1.plot(np.radians(theta_vals), hoop, 'r-', label='Hoop Stress', linewidth=2)
+    line2, = ax1.plot(np.radians(theta_vals), radial, 'b-', label='Radial Stress', linewidth=2)
+    line3, = ax1.plot(np.radians(theta_vals), shear, 'g-', label='Shear Stress', linewidth=2)
     ax1.set_title('Stress Components (Polar View)', pad=25, fontsize=14)
     ax1.legend(loc='upper right', fontsize=10)
     ax1.set_theta_zero_location('N')
     ax1.set_theta_direction(-1)
     
+    # Add cursor to polar plot
+    cursor1 = mplcursors.cursor([line1, line2, line3], hover=True)
+    @cursor1.connect("add")
+    def polar_callback(sel):
+        theta = np.degrees(sel.target[0])
+        value = sel.target[1]
+        sel.annotation.set_text(f"Angle: {theta:.1f}°\nValue: {value:.1f}MPa")
+        sel.annotation.get_bbox_patch().set(fc="white", alpha=0.8)
+    
     # 2. Hoop Stress (Cartesian)
     ax2 = fig.add_subplot(232)
-    ax2.plot(theta_vals, hoop, 'r-', linewidth=2)
+    line4, = ax2.plot(theta_vals, hoop, 'r-', linewidth=2)
     ax2.set_title('Hoop Stress vs Angle', fontsize=14)
     ax2.set_xlabel('Angle (degrees)', fontsize=12)
     ax2.set_ylabel('Hoop Stress (MPa)', fontsize=12)
     ax2.grid(True)
     
+    cursor2 = mplcursors.cursor(line4, hover=True)
+    @cursor2.connect("add")
+    def hoop_callback(sel):
+        angle = sel.target[0]
+        stress = sel.target[1]
+        sel.annotation.set_text(f"Angle: {angle:.1f}°\nStress: {stress:.1f}MPa")
+        sel.annotation.get_bbox_patch().set(fc="white", alpha=0.8)
+    
     # 3. All Stress Components
     ax3 = fig.add_subplot(233)
-    ax3.plot(theta_vals, hoop, 'r-', label='Hoop Stress', linewidth=2)
-    ax3.plot(theta_vals, radial, 'b-', label='Radial Stress', linewidth=2)
-    ax3.plot(theta_vals, shear, 'g-', label='Shear Stress', linewidth=2)
+    line5, = ax3.plot(theta_vals, hoop, 'r-', label='Hoop Stress', linewidth=2)
+    line6, = ax3.plot(theta_vals, radial, 'b-', label='Radial Stress', linewidth=2)
+    line7, = ax3.plot(theta_vals, shear, 'g-', label='Shear Stress', linewidth=2)
     ax3.set_title('All Stress Components', fontsize=14)
     ax3.set_xlabel('Angle (degrees)', fontsize=12)
     ax3.set_ylabel('Stress (MPa)', fontsize=12)
     ax3.legend(fontsize=10)
     ax3.grid(True)
+    
+    cursor3 = mplcursors.cursor([line5, line6, line7], hover=True)
+    @cursor3.connect("add")
+    def all_stress_callback(sel):
+        angle = sel.target[0]
+        stress = sel.target[1]
+        sel.annotation.set_text(f"Angle: {angle:.1f}°\nStress: {stress:.1f}MPa")
+        sel.annotation.get_bbox_patch().set(fc="white", alpha=0.8)
     
     # 4. 2D Hoop Stress Distribution
     ax4 = fig.add_subplot(234)
@@ -172,13 +200,21 @@ def update_plots(Sv, Shmin, Shmax, PP, wellbore_pressure, azimuth, dip, deviatio
     # 6. Stress Magnitude
     ax6 = fig.add_subplot(236)
     stress_magnitude = np.sqrt(hoop**2 + radial**2 + shear**2)
-    ax6.plot(theta_vals, stress_magnitude, 'k-', label='Stress Magnitude', linewidth=2)
-    ax6.plot(theta_vals, hoop, 'r-', alpha=0.3, label='Hoop Stress', linewidth=2)
+    line8, = ax6.plot(theta_vals, stress_magnitude, 'k-', label='Stress Magnitude', linewidth=2)
+    line9, = ax6.plot(theta_vals, hoop, 'r-', alpha=0.3, label='Hoop Stress', linewidth=2)
     ax6.set_title('Stress Magnitude', fontsize=14)
     ax6.set_xlabel('Angle (degrees)', fontsize=12)
     ax6.set_ylabel('Stress (MPa)', fontsize=12)
     ax6.legend(fontsize=10)
     ax6.grid(True)
+    
+    cursor4 = mplcursors.cursor([line8, line9], hover=True)
+    @cursor4.connect("add")
+    def magnitude_callback(sel):
+        angle = sel.target[0]
+        stress = sel.target[1]
+        sel.annotation.set_text(f"Angle: {angle:.1f}°\nStress: {stress:.1f}MPa")
+        sel.annotation.get_bbox_patch().set(fc="white", alpha=0.8)
     
     return fig
 
@@ -242,11 +278,7 @@ def main():
             # Display well logs with highlighted depth
             st.subheader("Well Logs at Selected Depth")
             well_log_fig = plot_well_logs(well_log, selected_depth)
-            
-            # Create a container for the figure with toolbar
-            well_log_container = st.container()
-            with well_log_container:
-                st.pyplot(well_log_fig)
+            st.pyplot(well_log_fig)
             
             # Find closest depth in log
             idx = (well_log['Depth'] - selected_depth).abs().idxmin()
@@ -302,11 +334,7 @@ def main():
                 with st.spinner('Calculating stresses...'):
                     stress_fig = update_plots(Sv, Shmin, Shmax, PP, wellbore_pressure, 
                                            azimuth, dip, deviation, selected_cmap)
-                    
-                    # Create a container for the main figure with toolbar
-                    stress_container = st.container()
-                    with stress_container:
-                        st.pyplot(stress_fig)
+                    st.pyplot(stress_fig)
 
 if __name__ == "__main__":
     main()
