@@ -253,6 +253,36 @@ def update_plots(Sv, Shmin, Shmax, PP, wellbore_pressure, azimuth, dip, deviatio
     arrow_angle = np.radians(azimuth + 90)  # Shmin is perpendicular to Shmax
     arrow_x = arrow_length * np.cos(arrow_angle)
     arrow_y = arrow_length * np.sin(arrow_angle)
+
+
+      # Add arrow as a separate trace for better control
+    fig.add_trace(
+        go.Scatter(
+            x=[0, arrow_x],
+            y=[0, arrow_y],
+            mode='lines+markers',
+            line=dict(color='red', width=3),
+            marker=dict(
+                symbol='arrow',
+                size=15,
+                angleref='previous',
+                color='red'
+            ),
+            showlegend=False,
+            hoverinfo='skip'
+        ),
+        row=2, col=1
+    )
+
+
+
+
+
+
+
+
+
+  
     
     fig.add_annotation(
         x=arrow_x,
