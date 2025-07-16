@@ -428,7 +428,7 @@ def load_well_log(uploaded_file):
 
 def main():
     st.set_page_config(layout="wide", page_title="Borehole Stress Analyzer")
-    st.title("📊 Borehole Stress Visualization Tool")
+    st.title("📊 Borehole Hoop Stress Visualization Model Tool")
     st.markdown("""
     <style>
     .stSlider>div {padding: 0.5rem 0;}
