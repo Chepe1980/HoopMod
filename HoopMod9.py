@@ -5,9 +5,24 @@ from plotly.subplots import make_subplots
 import streamlit as st
 from io import StringIO
 
+# Suppress warnings
+warnings.filterwarnings('ignore')
+
+# Page configuration
+st.set_page_config(layout="wide", page_title="Wellbore Stress Analysis")
+st.title("Hoop Stress Analysis with csv Data")
+
 # add logo
-logo = Image.open('stress.png')
-st.sidebar.image(logo, width=200)
+try:
+    logo = Image.open('stress.png')
+    st.sidebar.image(logo, width=200)
+except FileNotFoundError:
+    st.sidebar.warning("Logo image not found")
+
+st.markdown("""
+This app calculates hoop stress distribution around a wellbore using stress field data from csv files.
+All results are displayed in psi (pressure units).
+""")
 
 
 
