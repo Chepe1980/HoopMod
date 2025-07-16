@@ -273,7 +273,7 @@ def update_plots(Sv, Shmin, Shmax, PP, wellbore_pressure, azimuth, dip, deviatio
     fig.add_annotation(
         x=arrow_x * 1.2,
         y=arrow_y * 1.2,
-        text="Shmin",
+        text="Shmax",
         showarrow=False,
         font=dict(color='white', size=14, family="Arial Black"),
         bgcolor='rgba(0,0,0,0.7)',
