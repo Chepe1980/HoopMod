@@ -5,6 +5,13 @@ from plotly.subplots import make_subplots
 import streamlit as st
 from io import StringIO
 
+# add logo
+logo = Image.open('stress1.png')
+st.sidebar.image(logo, width=200)
+
+
+
+
 # Available colormaps
 colormaps = ['Viridis', 'Plasma', 'Inferno', 'Magma', 'Cividis', 
              'Cool', 'RdYlBu', 'Rainbow', 'Jet']
